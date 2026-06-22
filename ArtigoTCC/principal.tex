@@ -106,7 +106,8 @@ Nesse cenário, intervenções digitais voltadas ao estímulo da atividade físi
 
 Em ambientes com grande volume de itens e interações, essa adaptação depende de mecanismos capazes de selecionar e ordenar conteúdos por relevância \cite{10.1145/3285029}. É nesse ponto que se inserem os sistemas de recomendação, que exercem papel estratégico na organização da informação em serviços digitais \cite{GomezUribe2016Netflix}. No domínio da atividade física, sua utilidade cresce quando também consideram sinais sociais, já que interações entre pares podem influenciar comportamento e engajamento \cite{Franken2023}.
 
-Diante desse problema, este trabalho propõe o desenvolvimento e a avaliação de um sistema de recomendação para uma rede social voltada à atividade física. O estudo utiliza dados extraídos do LDBC SNB \cite{Angles2020LDBCSNB} e organiza um fluxo com as etapas de coleta, preparação, treinamento, validação e avaliação dos modelos. Como contribuição técnica, foi desenvolvido o aplicativo FitConnect, que serve como ambiente de interação e estudo de caso para a coleta de sinais e experimentações\footnote{Os códigos desenvolvidos neste trabalho estão disponíveis publicamente no repositório da pesquisa: \url{https://github.com/Philipidev/IARecomendacaoRedeSocialFitness}.}.Desse modo, o problema investigado neste trabalho não se limita à oferta de conteúdo, mas à construção de um processo de ordenação que articule conteúdo, contexto temporal e relações sociais.
+Diante desse problema, este trabalho propõe o desenvolvimento e a avaliação de um sistema de recomendação para uma rede social voltada à atividade física. O estudo utiliza dados extraídos do LDBC SNB \cite{Angles2020LDBCSNB} e organiza um fluxo com as etapas de coleta, preparação, treinamento, validação e avaliação dos modelos. Como contribuição técnica, foi desenvolvido o aplicativo FitConnect, que serve como ambiente de interação e estudo de caso para a coleta de sinais e experimentações.
+Como contribuição técnica, foi desenvolvido o aplicativo FitConnect, que serve como ambiente de interação e estudo de caso para a coleta de sinais e experimentações\footnote{Os códigos desenvolvidos neste trabalho estão disponíveis publicamente no repositório da pesquisa: \url{https://github.com/ICEI-PUC-Minas-EC-TCC/pmg-ec-2026-1-tcc2-sistema-de-recomendacao-hibrido}.}. Desse modo, o problema investigado neste trabalho não se limita à oferta de conteúdo, mas à construção de um processo de ordenação que articule conteúdo, contexto temporal e relações sociais.
 
 A solução investigada é construída em etapas. Primeiramente, o sistema combina similaridade de conteúdo, coocorrência de marcadores temáticos (\textit{tags}), recência, popularidade e informação do grafo social em um modelo híbrido de referência, onde cada sinal possui um peso interpretável. Em complemento, o trabalho incorpora uma trilha de aprendizado para ranqueamento (\textit{Learning to Rank}), permitindo que a importância de cada um desses sinais seja aprendida automaticamente a partir dos dados. A contribuição central do trabalho consiste em estruturar e comparar, em um mesmo ambiente experimental, essas diferentes abordagens de recomendação para apoiar a personalização de conteúdos sobre atividade física.
 
@@ -321,33 +322,32 @@ A Figura \ref{fig:fluxo_extracao} ilustra a lógica dessa filtragem. O procedime
 \small \\ Fonte: Elaborado pelos autores.
 \end{figure}
 
-Para ilustrar o impacto dessa filtragem, a Tabela \ref{tab:estatisticas_extracao} apresenta o volume de dados extraídos da versão SF0.1 do \textit{LDBC SNB} após a aplicação das regras de domínio.
-
-\textcolor{red}{Felipe: não seria legal mostrar o volume das 3 versões da base, com os diferentes SF? Recomendo adicionar duas colunas na tabela e mostrar as 3 bases. }
+Para ilustrar o impacto dessa filtragem, a Tabela \ref{tab:estatisticas_extracao} apresenta o volume de dados extraídos das três versões utilizadas do \textit{LDBC SNB} após a aplicação das regras de domínio.
 
 \begin{table}[H]
 \centering
-\caption{Estatísticas da base de dados após filtragem para o domínio \textit{fitness} (Versão \texttt{SF0.1})}
+\caption{Estatísticas da base de dados após filtragem para o domínio \textit{fitness} por versão}
 \label{tab:estatisticas_extracao}
 \small
-\begin{tabular}{|l|r|}
+\begin{tabular}{|l|r|r|r|}
 \hline
-\textbf{Entidade} & \textbf{Volume após filtragem} \\
+\textbf{Entidade} & \textbf{\texttt{SF0.1}} & \textbf{\texttt{SF3}} & \textbf{\texttt{SF30}} \\
 \hline
-\textit{Tags} \textit{fitness} identificadas & 33 \\
-Mensagens (\textit{Posts} e Comentários) & 158 \\
-Interações (Curtidas, Respostas, Criações) & 381 \\
-Interesses declarados por usuários & 7 \\
-Arestas no grafo social & 7.973 \\
-Pares de coocorrência de \textit{tags} & 0 \\
+\textit{Tags} \textit{fitness} identificadas & 33 & 33 & 33 \\
+Mensagens (\textit{Posts} e Comentários) & 158 & 7.585 & 77.105 \\
+Interações (Curtidas, Respostas, Criações) & 381 & 32.074 & 375.979 \\
+Interesses declarados por usuários & 7 & 182 & 1.143 \\
+Arestas no grafo social & 7.973 & 548.070 & 5.980.604 \\
+Pares de coocorrência de \textit{tags} & 0 & 11 & 94 \\
 \hline
 \end{tabular}
 \small \\ Fonte: Elaborado pelos autores.
 \end{table}
 
-\textcolor{red}{Felipe: com o ajuste na tabela, esse parágrafo precisa ser ajustado.}
 
-O valor nulo de pares de coocorrência de \textit{tags} na \texttt{SF0.1} decorre da escala reduzida desta versão: nenhuma mensagem \textit{fitness} reúne duas ou mais \textit{tags} \textit{fitness} simultaneamente, condição necessária para a formação de um par. Esse sinal deixa de ser nulo à medida que a base cresce, passando a 11 pares na \texttt{SF3} e a 94 na \texttt{SF30}.
+A contagem de 33 \textit{tags} \textit{fitness} permanece idêntica nas três versões porque o \textit{LDBC SNB} utiliza o mesmo vocabulário de marcadores em todos os seus fatores de escala. As alterações que ocorrem nesses fatores são, o volume de usuários, mensagens geradas, e não o catálogo temático disponível. Como esse vocabulário não muda entre versões, o conjunto de \textit{tags} identificadas é necessariamente o mesmo nas três rodadas. O que escala, portanto, é o uso dessas \textit{tags}, a quantidade de mensagens que as recebem e as interações associadas.
+
+O valor nulo de pares de coocorrência de \textit{tags} na \texttt{SF0.1} decorre da escala reduzida desta versão, onde nenhuma mensagem \textit{fitness} reúne duas ou mais \textit{tags} \textit{fitness} simultaneamente, condição necessária para a formação de um par. Esse sinal deixa de ser nulo à medida que a base cresce, passando a 11 pares na \texttt{SF3} e a 94 na \texttt{SF30}. A coocorrência de \textit{tags}, mede em quantas mensagens \textit{fitness} um mesmo par de \textit{tags} aparece junto. É esse sinal que permite que o sistema recomende conteúdos relacionados mesmo sem a \textit{tag} exata.
 
 
 \subsubsection{Etapa 2: Separação experimental}
@@ -477,41 +477,10 @@ A Figura \ref{fig:fluxo_avaliacao} ilustra esse protocolo, mostrando a separaç�
 \small \\ Fonte: Elaborado pelos autores.
 \end{figure}
 
+A figura é lida em três faixas. No topo, a linha do tempo das interações é dividida cronologicamente em treino (70\%), validação (15\%) e teste (15\%), com cortes que garantem que o passado anteceda o futuro. No centro, as interações de um usuário no teste são separadas entre o histórico observado, o antes e o gabarito, o depois. Na interação de referência, o modelo usa apenas as \textit{tags} e o horário, e o cadeado reforça que ele nunca acessa o lado do gabarito.
 
-% \begin{figure}[H]
-% \centering
-% \caption{Fluxograma do protocolo de avaliação \textit{offline}.}
-% \label{fig:fluxo_avaliacao}
-% \begin{tikzpicture}[
-%     node distance=1.2cm and 0.5cm,
-%     box/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=blue!10, drop shadow},
-%     iobox/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=gray!20, drop shadow},
-%     arrow/.style={-{Stealth[scale=1.1]}, thick}
-% ]
+Na faixa inferior, a partir desses sinais o modelo percorre o catálogo completo de \textit{posts} \textit{fitness} e gera a lista \textit{Top-K}, já sem os itens vistos, que é comparada ao gabarito, para calcular as métricas, onde quanto mais acertos e mais próximos do topo, melhor o modelo.
 
-% % Linha de cima (esquerda -> direita)
-% \node[iobox] (entrada) {Conjunto de teste};
-% \node[box, right=of entrada] (grupo) {Agrupar interações por usuário};
-% \node[box, right=of grupo] (ordena) {Ordenar interações cronologicamente};
-% \node[box, right=of ordena] (ref) {Define a referência temporal};
-
-% % Linha de baixo (direita -> esquerda)
-% \node[box, below=of ref] (gab) {Define o gabarito};
-% \node[box, left=of gab] (topk) {Modelo gera Top-K recomendações};
-% \node[box, left=of topk] (metricas) {Calcular métricas};
-% \node[iobox, left=of metricas] (saida) {Média das métricas sobre as consultas};
-
-% \draw[arrow] (entrada) -- (grupo);
-% \draw[arrow] (grupo) -- (ordena);
-% \draw[arrow] (ordena) -- (ref);
-% \draw[arrow] (ref) -- (gab);
-% \draw[arrow] (gab) -- (topk);
-% \draw[arrow] (topk) -- (metricas);
-% \draw[arrow] (metricas) -- (saida);
-
-% \end{tikzpicture}
-% \small \\ Fonte: Elaborado pelos autores.
-% \end{figure}
 
 Para mensurar a qualidade do ranqueamento, foram adotadas métricas que consideram tanto a presença de itens relevantes quanto sua posição na lista recomendada, com profundidades K = 10 e K = 100. São elas:
 
@@ -520,8 +489,7 @@ Para mensurar a qualidade do ranqueamento, foram adotadas métricas que consider
     \item[b)] Acerto temático@K: proporção de consultas em que ao menos um item recomendado entre os K primeiros compartilha tema com os itens consumidos logo depois.
 \end{itemize}
 
-
-No acerto temático, foi comparado as \textit{tags} de dois \textit{posts} para decidir se eles falam da mesma coisa. Para isso, foi utilizado uma conta simples chamada índice de Jaccard \cite{Niwattanakul2013Jaccard}, que mede o quanto duas listas de \textit{tags} se parecem, em uma escala de 0 a 1. Dessa forma, conta-se quantas \textit{tags} os dois \textit{posts} têm em comum e divide-se pelo total de \textit{tags} diferentes que aparecem nos dois juntos. O resultado é 0 quando eles não têm nenhuma \textit{tag} em comum e 1 quando têm exatamente as mesmas \textit{tags}.
+O acerto temático é definido a partir da proximidade entre as \textit{tags} dos \textit{posts}, uma vez que sistemas baseados em marcações podem utilizar relações entre \textit{tags} para representar proximidade semântica entre conteúdos \cite{cattuto2008semantic}. Nessa métrica, foi comparada as \textit{tags} de dois \textit{posts} para decidir se eles tratam de temas próximos. Para isso, foi utilizado o índice de Jaccard \cite{Niwattanakul2013Jaccard}, que mede o quanto dois conjuntos de \textit{tags} se parecem, em uma escala de 0 a 1. Dessa forma, conta-se quantas \textit{tags} os dois \textit{posts} têm em comum e divide-se pelo total de \textit{tags} diferentes que aparecem nos dois juntos
 
 É considerado que dois \textit{posts} são do mesmo tema quando esse valor é igual ou maior que 0,5, ou seja, quando eles compartilham pelo menos metade das \textit{tags}. Não existe um valor de corte universal para o índice de Jaccard \cite{Niwattanakul2013Jaccard}, pois ele depende do domínio, e por isso a faixa entre 0,4 e 0,7 costuma ser tratada como similaridade moderada. Foi adotado 0,5 por ser um meio-termo, exigindo um pouco de tema em comum, mas sem precisar que as \textit{tags} sejam idênticas. Como essa regra é mais flexível que exigir a próxima interação exata, e como o domínio tem 33 \textit{tags}, os valores do acerto temático ficam mais altos que os do NDCG.
 
@@ -657,33 +625,28 @@ Final & \texttt{SF30} & LTR (\textit{LightGBMRanker}) & 0,0000 & 0,773 & Catálo
 \small \\ Fonte: Elaborado pelos autores.
 \end{table}
 
-\subsection{Contextualização dos valores absolutos}
+Os valores absolutos de NDCG observados neste estudo podem parecer baixos quando analisados isoladamente, mas são esperados em razão do rigor do gabarito, do tamanho do catálogo e, sobretudo, do protocolo de avaliação adotado. No NDCG, a recomendação só é considerada correta quando o modelo recupera exatamente o próximo \textit{post} acessado entre milhares de outros. Esse critério é bem mais rígido que definições que admitem como acerto qualquer item de um mesmo tema, que é justamente o que o acerto temático mede, e por isso reduz os valores absolutos das métricas de ranqueamento. Por isso, foi reportado os dois critérios em conjunto, o exato pelo NDCG, e o flexível pelo acerto temático.
 
-Os valores absolutos de NDCG observados neste estudo podem parecer baixos quando analisados isoladamente, mas são esperados em razão do rigor do gabarito, do tamanho do catálogo e, sobretudo, do protocolo de avaliação adotado. No NDCG, a recomendação só é considerada correta quando o modelo recupera exatamente o próximo \textit{post} acessado entre milhares de outros. Esse critério é bem mais rígido que definições que admitem como acerto qualquer item de um mesmo tema, que é justamente o que o acerto temático mede, e por isso reduz os valores absolutos das métricas de ranqueamento. Por isso foi reportado os dois critérios em conjunto, o exato pelo NDCG, e o flexível pelo acerto temático.
-
-Para entender por que esses números são baixos, é necessário saber o que o NDCG mede. Ele verifica se os itens certos aparecem na lista e, principalmente, se aparecem perto do topo, dando mais peso aos acertos nas primeiras posições, que é onde o usuário olha primeiro. O valor é normalizado entre 0 e 1, em que 1 representa a lista perfeita, com o item certo logo na frente \cite{Jarvelin2002NDCG}. Nosso protocolo, só conta como acerto o próximo \textit{post} exato, entre milhares de opções, e ainda há perda quando ele aparece em posições mais baixas, o que é natural o NDCG fique próximo de zero, mesmo para um modelo bom.
+Para entender por que esses números são baixos, é necessário saber o que o NDCG mede. Ele verifica se os itens certos aparecem na lista e, principalmente, se aparecem perto do topo, dando mais peso aos acertos nas primeiras posições, que é onde o usuário olha primeiro. O valor é normalizado entre 0 e 1, em que 1 representa a lista perfeita, com o item certo logo na frente \cite{Jarvelin2002NDCG}. Nosso protocolo, só conta como acerto o próximo \textit{post} exato, entre milhares de opções, e ainda há perda quando ele aparece em posições mais baixas, o que é natural do NDCG ficar próximo de zero, mesmo para um modelo bom.
 
 O tamanho do catálogo reforça essa leitura. Na \texttt{SF30}, com 77.105 \textit{posts} candidatos, a chance de acertar o item exato entre os 100 primeiros é de apenas \(100/77.105 \approx 0{,}13\%\), o que mantém os valores absolutos baixos mesmo para bons modelos. Já para catálogos menores, como na \texttt{SF3}, eles sobem. Por isso, o valor do trabalho está na comparação relativa entre os modelos sob o mesmo protocolo, e não no valor isolado de cada métrica.
 
-É justamente para complementar essa leitura que foi adotado o acerto temático. Em vez de exigir o item exato, ele considera correto qualquer \textit{post} do mesmo tema, o que reflete melhor o objetivo prático no domínio \textit{fitness}, que é oferecer conteúdo relevante e não necessariamente o único item certo. Sob esse critério, os valores sobem bastante, chegando a 0,773 no LTR e 0,666 na Popularidade na \texttt{SF30}. Ou seja, os modelos recomendam conteúdo pertinente com muito mais frequência do que sugerem as métricas de acerto exato, o que é a informação mais importante para quem usa o sistema na prática.
-
-
-\subsection{Síntese dos achados}
+Considerando esse cenário, foi adotado o acerto temático. Em vez de exigir o item exato, ele considera correto qualquer \textit{post} do mesmo tema, o que reflete melhor o objetivo prático no domínio \textit{fitness}, que é oferecer conteúdo relevante e não necessariamente o único item certo. Sob esse critério, os valores sobem bastante, chegando a 0,773 no LTR e 0,666 na Popularidade na \texttt{SF30}. Ou seja, os modelos recomendam conteúdo pertinente com muito mais frequência do que sugerem as métricas de acerto exato, o que é a informação mais importante para quem usa o sistema na prática.
 
 Após as três rodadas, é nítido que cada modelo tem um ponto forte distinto e complementar. A métrica acerto temático reforça esse quadro, pois mostra que ao olhar para o tema em vez do item exato, cada modelo traz um conteúdo pertinente com frequências distintas. Não há, portanto, um modelo dominante, a escolha para produção depende do critério priorizado pelo negócio, latência, engajamento em conteúdo recente ou descoberta diversificada.
 
-O volume de dados, por sua vez, é determinante para a comparação sendo que a \texttt{SF0.1} valida apenas o protocolo, a \texttt{SF3} já distingue os modelos e a \texttt{SF30} reduz o NDCG absoluto pela maior dificuldade da tarefa, tornando o NDCG@100 a métrica mais informativa em escala.
+O volume de dados, por sua vez, é determinante para a comparação, sendo que a \texttt{SF0.1} valida apenas o protocolo, a \texttt{SF3} já distingue os modelos e a \texttt{SF30} reduz o NDCG absoluto pela maior dificuldade da tarefa, tornando o acerto temático a métrica mais informativa em escala.
 
 Por fim, destacam-se três limitações, o critério estrito baseado na próxima interação exata, que reduz os valores absolutos de NDCG, o caráter sintético da base \textit{LDBC SNB}, com texto gerado aleatoriamente e a ausência de avaliação \textit{online} com usuários reais.
 
 
 \section{CONCLUSÃO}
 
-Este trabalho foi motivado pelo desafio de estimular a prática de atividade física em um contexto no qual plataformas digitais concentram grande volume de conteúdos, mas nem sempre oferecem informações compatíveis com o perfil, os interesses e o momento de cada usuário. Diante dessa necessidade de tornar a descoberta de conteúdos fitness mais relevante e personalizada, foi desenvolvido e avaliado o FitConnect, uma rede social que utiliza um sistema de recomendação híbrido para organizar e ranquear publicações com base em sinais de conteúdo, recência, popularidade e relações sociais.
+Este trabalho foi motivado pelo desafio de estimular a prática de atividade física em um contexto no qual plataformas digitais concentram grande volume de conteúdos, mas nem sempre oferecem informações compatíveis com o perfil, os interesses e o momento de cada usuário. Diante dessa necessidade de tornar a descoberta de conteúdos \textit{fitness} mais relevante e personalizada, foi desenvolvido e avaliado o FitConnect, uma rede social que utiliza um sistema de recomendação híbrido para organizar e ranquear publicações com base em sinais de conteúdo, recência, popularidade e relações sociais.
 
 A metodologia adotada permitiu estruturar um fluxo experimental reproduzível, desde a preparação da base de dados até a avaliação dos modelos. A comparação entre as abordagens mostrou que os modelos possuem comportamentos complementares, sem que uma única solução se destaque em todos os critérios analisados. Enquanto os modelos híbridos apresentaram maior estabilidade e equilíbrio prático, o modelo baseado em aprendizado para ranqueamento demonstrou potencial para ampliar a diversidade das recomendações.
 
-De modo geral, os resultados indicam que a personalização de conteúdos fitness em redes sociais pode se beneficiar da combinação de diferentes sinais de recomendação. No entanto, o desempenho dos modelos também mostrou depender do volume de dados, da qualidade das interações disponíveis e do critério utilizado para avaliar a relevância das recomendações.
+De modo geral, os resultados indicam que a personalização de conteúdos \textit{fitness} em redes sociais pode se beneficiar da combinação de diferentes sinais de recomendação. No entanto, o desempenho dos modelos também mostrou depender do volume de dados, da qualidade das interações disponíveis e do critério utilizado para avaliar a relevância das recomendações.
 
 Como limitações, destacam-se o uso de uma base sintética e a ausência de testes com usuários reais, o que restringe a análise da experiência de uso em um ambiente prático. Para trabalhos futuros, sugere-se a utilização de dados reais, a realização de avaliações online no FitConnect e o aprimoramento dos modelos de recomendação com maior personalização por usuário. Dessa forma, o sistema poderá evoluir para recomendações mais ajustadas ao comportamento dos usuários e às necessidades de redes sociais voltadas à atividade física.
 
