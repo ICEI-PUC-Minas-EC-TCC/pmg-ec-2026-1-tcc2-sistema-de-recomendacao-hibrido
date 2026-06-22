@@ -1,0 +1,695 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{abakos}
+\usepackage{abntex2cite} 
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{amssymb} % Para \checkmark
+\usepackage{amsmath} % Para \text em modo matemático
+\usepackage{url}
+
+\usetikzlibrary{positioning,arrows.meta,shadows.blur,fit,calc} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Capa da revista
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\setcounter{page}{80} %iniciar contador de pagina de valor especificado, quando o artigo for alocado a uma edição
+\newcommand{\monog}{Personalização de Conteúdo Fitness em Rede Social por meio de um Sistema de Recomendação Híbrido}
+\newcommand{\monogES}{Fitness Content Personalization in Social Networks through a Hybrid Recommender System}
+\newcommand{\origem}{Brasil}
+\newcommand{\editorial}{\textbf{Abakós}, Belo Horizonte, v. 8, n. 2, p. 00-00, Jul. 2021 - ISSN: 2316-9451}  % p. xx-xx – páginas inicial-final do artigo
+% \newcommand{\lcc}{\scriptsize{Licença Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported}}
+
+%%%%%%%%%%%%%%%%%INFORMAÇÕES SOBRE AUTORES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Autor A
+\newcommand{\AutorA}{Izabela Castanheira Galinari}
+\newcommand{\funcaoA}{}
+\newcommand{\cursA}{Engenharia de Computação}
+\newcommand{\emailA}{izabela.galinari02@gmail.com}
+
+% Autor B
+\newcommand{\AutorB}{Philipi Gariglio Carvalho Faustino Altoe}
+\newcommand{\funcaoB}{}
+\newcommand{\cursB}{Engenharia de Computação}
+\newcommand{\emailB}{philipigariglio@gmail.com}
+
+% Autor C
+\newcommand{\AutorC}{Raphael Lulli Duarte Tanos Galdino}
+\newcommand{\funcaoC}{}
+\newcommand{\cursC}{Engenharia de Computação}
+\newcommand{\emailC}{raphaellulli@hotmail.com}
+
+\newcommand{\AutorD}{Felipe Augusto Lara Soares}
+\newcommand{\funcaoD}{}
+\newcommand{\cursD}{Engenharia de Computação}
+\newcommand{\emailD}{felipesoares@pucminas.br}
+
+\newcommand{\keyword}[1]{\textsf{#1}}
+
+\begin{document}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Pagina de titulo
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+\begin{minipage} [c][5cm][b]{16.5cm} % Cabeçalho da primeira página da revista
+\includegraphics[scale=1.1]{figuras/pucmg.png} 
+\end{minipage}
+ \vspace{0cm} { %Rodapé das páginas da revista
+ \singlespacing \Large{\monog \symbolfootnote[1]{Submetido em DD/MM/AAAA - Aceito em DD/MM/AAAA} \\ }
+  \normalsize{\monogES}
+ }
+\end{flushleft}
+
+\begin{flushright}
+\singlespacing
+\normalsize{\AutorA \footnote{\funcaoA \cursA, \origem -- \emailA}} \\
+\normalsize{\AutorB \footnote{\funcaoB \cursB, \origem -- \emailB}} \\
+\normalsize{\AutorC \footnote{\funcaoC \cursC, \origem -- \emailC}} \\
+\normalsize{\AutorD \footnote{\funcaoD \cursD, \origem -- \emailD}} \\
+\end{flushright}
+\thispagestyle{empty}
+
+
+\begin{abstract}
+\noindent
+A prática insuficiente de atividade física permanece um desafio relevante de saúde pública, exigindo intervenções capazes de engajar a população. Em ambientes digitais, o excesso de informação dificulta a descoberta de conteúdos adequados ao perfil e momento de cada usuário, tornando os sistemas de recomendação ferramentas essenciais para a personalização. Diante disso, este trabalho apresenta o desenvolvimento e a avaliação de um sistema de recomendação voltado à personalização de conteúdo sobre atividade física em uma rede social. A proposta utiliza como base experimental a base de dados LDBC SNB, da qual são extraídos posts, interações, interesses declarados e relações sociais associados a esse domínio. Sobre esses dados, foi estruturado um fluxo reproduzível de preparação, separação em treino, validação e teste, treinamento e avaliação. O sistema de recomendação combina sinais de similaridade de conteúdo, coocorrência de \textit{tags}, recência, popularidade e influência do grafo social em um modelo híbrido de referência explicável, além de incluir uma trilha de aprendizado para ranqueamento (\textit{Learning to Rank}) com \textit{LightGBMRanker} para comparação entre modelos. 
+Os resultados mostraram que o \textit{baseline} híbrido obteve o melhor NDCG@10 (0,0023 em \texttt{SF3}), enquanto o \textit{LightGBMRanker} liderou no NDCG@100 (0,0082) e na avaliação manual qualitativa (9/12 critérios atendidos).
+\\\textbf{\keyword{Palavras-chave: }}Sistemas de Recomendação, Aprendizado para Ranqueamento, Grafo Social, Atividade Física
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\selectlanguage{english}
+\begin{abstract}
+\noindent
+This work presents the development and evaluation of a recommender system aimed at personalizing fitness-related content in a social network. The proposal uses the LDBC SNB dataset as its experimental basis, from which posts, interactions, declared interests, and social relationships associated with physical activity are extracted. On top of these data, a reproducible pipeline was structured for data preparation, train-validation-test splitting, training, and evaluation. The recommender combines content similarity, tag co-occurrence, recency, popularity, and social graph influence in an explainable hybrid baseline, while also including a Learning to Rank track with LightGBMRanker for model comparison. Results showed that the hybrid baseline achieved the best NDCG@10 (0.0023 on \texttt{SF3}), while the LightGBMRanker led in NDCG@100 (0.0082) and in the qualitative manual evaluation (9/12 criteria met).
+\\\textbf{\keyword{Keywords: }}Recommendation Systems, Learning to Rank, Social Graph, Physical Activity
+\end{abstract}
+
+\newpage
+
+\selectlanguage{brazilian}
+ \onehalfspace  % espaçamento 1.5 entre linhas
+ \setlength{\parindent}{1.25cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INICIO DO TEXTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introdução}
+A prática insuficiente de atividade física permanece um desafio relevante de saúde pública no Brasil, contribuindo para o aumento de doenças crônicas não transmissíveis. Dados do \citeonline{Vigitel2023} indicam que os níveis de atividade física observados nas capitais brasileiras ainda demandam políticas e estratégias capazes de reduzir o sedentarismo e ampliar a adoção de rotinas ativas. Em paralelo, a Organização Mundial da Saúde recomenda, para adultos, entre 150 e 300 minutos semanais de atividade aeróbica moderada, parâmetro que ainda não é alcançado por parcela expressiva da população \cite{WHO2020}.
+
+Nesse cenário, intervenções digitais voltadas ao estímulo da atividade física vêm recebendo atenção crescente, sobretudo quando adaptam conteúdos ao contexto do usuário \cite{Agans2025PARecommender,Venka2022CARS}. Contudo, a simples disponibilização de conteúdos não garante que cada pessoa receba informações compatíveis com seus interesses, seu momento de uso e sua realidade social.
+
+Em ambientes com grande volume de itens e interações, essa adaptação depende de mecanismos capazes de selecionar e ordenar conteúdos por relevância \cite{10.1145/3285029}. É nesse ponto que se inserem os sistemas de recomendação, que exercem papel estratégico na organização da informação em serviços digitais \cite{GomezUribe2016Netflix}. No domínio da atividade física, sua utilidade cresce quando também consideram sinais sociais, já que interações entre pares podem influenciar comportamento e engajamento \cite{Franken2023}.
+
+Diante desse problema, este trabalho propõe o desenvolvimento e a avaliação de um sistema de recomendação para uma rede social voltada à atividade física. O estudo utiliza dados extraídos do LDBC SNB \cite{Angles2020LDBCSNB} e organiza um fluxo com as etapas de coleta, preparação, treinamento, validação e avaliação dos modelos. Como contribuição técnica, foi desenvolvido o aplicativo FitConnect, que serve como ambiente de interação e estudo de caso para a coleta de sinais e experimentações\footnote{Os códigos desenvolvidos neste trabalho estão disponíveis publicamente no repositório da pesquisa: \url{https://github.com/Philipidev/IARecomendacaoRedeSocialFitness}.}.Desse modo, o problema investigado neste trabalho não se limita à oferta de conteúdo, mas à construção de um processo de ordenação que articule conteúdo, contexto temporal e relações sociais.
+
+A solução investigada é construída em etapas. Primeiramente, o sistema combina similaridade de conteúdo, coocorrência de marcadores temáticos (\textit{tags}), recência, popularidade e informação do grafo social em um modelo híbrido de referência, onde cada sinal possui um peso interpretável. Em complemento, o trabalho incorpora uma trilha de aprendizado para ranqueamento (\textit{Learning to Rank}), permitindo que a importância de cada um desses sinais seja aprendida automaticamente a partir dos dados. A contribuição central do trabalho consiste em estruturar e comparar, em um mesmo ambiente experimental, essas diferentes abordagens de recomendação para apoiar a personalização de conteúdos sobre atividade física.
+
+O restante do trabalho está organizado da seguinte forma: a Seção 2 apresenta a fundamentação teórica sobre inteligência artificial, sistemas de recomendação e métricas de avaliação; a Seção 3 discute os trabalhos correlatos; a Seção 4 descreve a metodologia adotada, com destaque para materiais e método; a Seção 5 apresenta os experimentos e resultados; e, por fim, a Seção 6 apresenta a conclusão do trabalho.
+
+
+
+
+
+
+
+\section{Fundamentação Teórica}
+
+Esta seção apresenta os conceitos centrais que sustentam a proposta desenvolvida no trabalho. 
+
+\subsection{Inteligência Artificial e Sistemas de Recomendação}
+
+% No contexto deste trabalho, 
+
+A Inteligência Artificial é compreendida como o conjunto de métodos computacionais utilizados para apoiar decisões automáticas a partir de dados. Entre essas aplicações, os sistemas de recomendação ocupam papel relevante por permitirem selecionar e ordenar conteúdos potencialmente mais úteis para cada usuário em ambientes com grande volume de informação \cite{10.1145/3285029,GomezUribe2016Netflix}.
+
+Em termos gerais, um sistema de recomendação busca estimar a relevância de itens, como filmes, músicas, produtos ou publicações, com base em sinais observáveis do contexto, do conteúdo e do comportamento dos usuários. No cenário da atividade física, revisões recentes indicam que esses sistemas podem contribuir para tornar intervenções digitais mais aderentes ao perfil e ao momento de uso de cada pessoa \cite{Venka2022CARS,Agans2025PARecommender}.
+
+Para atingir esse objetivo, diferentes estratégias de filtragem podem ser empregadas. A filtragem baseada em conteúdo parte das características do próprio item recomendado. Em vez de depender exclusivamente do comportamento coletivo dos usuários, ela compara descritores dos itens com o perfil de interesse do usuário ou com a descrição do item de referência. Por outro lado, a filtragem colaborativa procura identificar padrões de interesse a partir do comportamento agregado de diferentes usuários. Sua ideia central é que interações passadas podem revelar relações úteis entre usuários, itens ou grupos de itens, permitindo inferir preferências prováveis mesmo quando os conteúdos não são idênticos \cite{10.1145/3285029}.
+
+Quando essas abordagens são utilizadas em conjunto, formam-se os modelos híbridos. Esses modelos combinam diferentes fontes de evidência em um mesmo processo de recomendação. Essa estratégia é relevante porque permite articular características do conteúdo, padrões coletivos de interação e informações contextuais em uma única função de ranqueamento \cite{Venka2022CARS}. Uma variação dessa abordagem é o modelo híbrido de referência explicável, que designa uma arquitetura em que cada sinal possui significado claro e contribuição interpretável no cálculo do \textit{score} final.
+
+
+\subsection{Sinais de ranqueamento}
+
+Como a recomendação não depende de um único critério de relevância, múltiplos sinais podem ser combinados para ordenar os candidatos, formando a base de modelos híbridos e de algoritmos de aprendizado \cite{10.1145/3285029}. Três deles derivam diretamente do conteúdo e do tempo: a \textbf{similaridade de conteúdo}, que mede a proximidade temática entre itens com marcadores semelhantes \cite{Lops2011CB}; a \textbf{coocorrência de \textit{tags}}, que explora a frequência com que marcadores aparecem juntos para recuperar conteúdos relacionados além da coincidência exata; e a \textbf{recência}, sinal temporal que, por meio de decaimento, favorece itens mais próximos do momento da consulta \cite{Koren2009Temporal}.
+
+Outros dois sinais capturam o comportamento coletivo e a estrutura da rede: a \textbf{popularidade}, que reflete o interesse acumulado em torno de um item (volume de interações, acesso ou engajamento) \cite{Covington2016YouTube}, e a \textbf{influência do grafo social}, que considera a posição social de quem interage com o conteúdo, relevante em redes voltadas à atividade física, nas quais a interação entre pares afeta o engajamento \cite{Franken2023}.
+
+Em um modelo híbrido de referência explicável, o \textit{score} final do item pode ser entendido como uma combinação ponderada desses componentes:
+
+
+\begin{equation}
+\label{eq:score_hibrido}
+score(i,q) = w_c \cdot s_{c} + w_o \cdot s_{o} + w_r \cdot s_{r} + w_s \cdot s_{s} + w_p \cdot s_{p}
+\end{equation}
+
+\noindent onde, $score(i,q)$ é a pontuação final de relevância do item $i$ para a consulta $q$; $w_c, w_o, w_r, w_s, w_p$ são os pesos atribuídos a cada sinal, cuja soma é igual a 1; $s_{c}$ é o \textit{score} de similaridade de conteúdo (cálculo de cosseno entre vetores de \textit{tags}); $s_{o}$ é o \textit{score} de coocorrência de \textit{tags}; $s_{r}$ é o \textit{score} de recência (decaimento temporal); $s_{s}$ é o \textit{score} de influência do grafo social; $s_{p}$ é o \textit{score} de popularidade histórica do item.
+
+\subsection{Aprendizado para ranqueamento}
+
+Ranquear significa ordenar itens de acordo com um critério de relevância. Em muitos problemas de recomendação, não basta decidir se um item é potencialmente adequado; é necessário determinar também em que posição ele deve aparecer para o usuário. O Aprendizado para Ranqueamento (do inglês \textit{Learning to Rank}), corresponde à família de métodos supervisionados que aprendem essa ordenação a partir de exemplos previamente observados \cite{Burges2010LTROverview}.
+
+Diferentemente de um modelo com pesos definidos manualmente, o \textit{Learning to Rank} busca estimar, a partir dos dados, como cada atributo deve influenciar a ordem final dos itens. Em aplicações de recomendação, isso permite aprender combinações mais ajustadas entre sinais de conteúdo, interação e contexto, reduzindo a dependência de calibração exclusivamente manual.
+
+O \textit{LightGBMRanker} é um algoritmo específico utilizado em tarefas de ranqueamento, baseado em árvores de decisão com aumento de gradiente (\textit{Gradient Boosting Decision Trees}). Ele é projetado para otimizar métricas de ordenação de forma eficiente, permitindo que a importância relativa de diversos atributos seja aprendida diretamente a partir dos dados de treinamento \cite{Ke2017LightGBM}.
+
+Em tarefas de ranqueamento, a avaliação precisa considerar não apenas se um item relevante foi recuperado, mas também a posição em que ele aparece na lista. Por essa razão, métricas de ordenação como a \textit{Normalized Discounted Cumulative Gain} (\textit{NDCG}) \cite{Jarvelin2002NDCG} e a \textit{Mean Reciprocal Rank} (\textit{MRR}) \cite{Craswell2009MRR} são especialmente importantes na análise de sistemas de recomendação, sobretudo em cenários nos quais a atenção do usuário se concentra nos primeiros resultados. Suas definições operacionais, junto às demais métricas adotadas, são detalhadas na Seção 5.
+
+
+
+
+\section{Trabalhos Correlatos}
+
+
+Em plataformas digitais de grande escala, os sistemas de recomendação ocupam posição central na interação com o usuário \cite{10.1145/3285029}. No caso da Netflix, \citeonline{GomezUribe2016Netflix} mostram que a recomendação está diretamente associada à personalização do catálogo, ao engajamento e à retenção, sendo continuamente aprimorada por testes A/B e dados históricos.
+
+No domínio \textit{fitness}, \citeonline{Venka2022CARS} revisam algoritmos sensíveis ao contexto e mostram que preferências individuais, contexto de uso e dados comportamentais ampliam a pertinência das recomendações. De forma mais aplicada, \citeonline{Zhao2020PersonalizedFitness} propõem um sistema de assistência fitness com modelagem dinâmica de usuários e, em estudo com 40 participantes por 60 dias, observaram ganhos significativos de motivação ao combinar personalização e gamificação. Já \citeonline{Agans2025PARecommender} investigam recomendação de atividades para jovens inativos com maior peso corporal, constatando disposição de cerca de metade dos participantes em adotar as sugestões.
+
+Em redes sociais, a recomendação também explora a estrutura relacional entre usuários. \citeonline{10457840} propõem um método de recomendação de participantes em redes baseadas em eventos, considerando relevância e equidade na ordenação; embora trate de problema distinto, é pertinente por mostrar como informações de rede e contexto social podem ser incorporadas ao ranqueamento.
+
+Em conjunto, esses trabalhos mostram que a literatura já reconhece a importância da personalização, do contexto e das relações sociais em sistemas de recomendação. A proposta desenvolvida neste trabalho, aproxima-se dessa linha ao tratar a recomendação como núcleo técnico do sistema, mas se diferencia por direcionar o problema para a ordenação de conteúdo sobre atividade física em rede social, explorando sinais de conteúdo, coocorrência, recência, popularidade e grafo social em um mesmo ambiente experimental. Além disso, o trabalho compara um modelo híbrido de referência com uma trilha de aprendizado para ranqueamento, o que amplia a análise para além de uma única estratégia de recomendação.
+
+
+
+
+\section{Metodologia}
+
+Esta seção apresenta os materiais, as versões da base LDBC SNB e o método experimental adotado no desenvolvimento e na avaliação do sistema de recomendação.
+
+\subsection{Materiais}
+
+A base de dados utilizada foi o LDBC Social Network Benchmark (\textit{LDBC SNB}) \cite{Angles2020LDBCSNB}, empregado como fonte de posts, comentários, \textit{tags} e relações sociais. A partir da versão completa da base, foram selecionados apenas os registros relacionados ao domínio da atividade física, os quais foram armazenados em arquivos no formato \textit{parquet}, adotado por permitir compressão eficiente e leitura rápida de colunas específicas.
+
+O ambiente computacional do projeto foi organizado principalmente em Python 3.11. Na etapa de extração e transformação dos dados brutos, utilizou-se o DuckDB, um sistema de gerenciamento de banco de dados analítico em memória, ideal para processamento rápido de grandes volumes de dados. Complementarmente, foram utilizadas as bibliotecas pandas, NumPy e PyArrow para manipulação e estruturação dos dados.
+
+Para a construção do modelo híbrido de referência, utilizou-se a biblioteca scikit-learn \cite{pedregosa2011scikit}, especialmente na vetorização binária das \textit{tags}. Na etapa de aprendizado para ranqueamento, foi empregado o \textit{LightGBMRanker}, disponível na biblioteca LightGBM \cite{Ke2017LightGBM}. Além disso, para representar semanticamente as \textit{tags}, utilizou-se a biblioteca \textit{sentence-transformers}, com o modelo pré-treinado \texttt{all-MiniLM-L6-v2}, responsável por gerar vetores densos de 384 dimensões a partir dos nomes dessas \textit{tags}. Esses vetores foram incorporados como atributos adicionais no \textit{LightGBMRanker}.
+
+% \textcolor{red}{Os conjuntos de treino, validação e teste não são parte dos materiais e sim da metodologia. Sugiro ajustar esse parágrafo para não citar isso e deixar para colocar isso em método.}
+
+Como materiais intermediários do estudo, foram produzidos artefatos derivados da base inicial. Esses arquivos compõem a base efetiva sobre a qual os modelos são treinados e avaliados. Entre os principais artefatos, destacam-se:
+
+\begin{itemize}
+    \item[a)] \texttt{messages\_fitness.parquet}: metadados das publicações e comentários \textit{fitness} (data de criação, tamanho do texto e \textit{tags}).
+    \item[b)] \texttt{interactions\_fitness.parquet}: ações dos usuários (curtidas, criação de posts e respostas), usadas para inferir preferências.
+    \item[c)] \texttt{tag\_cooccurrence.parquet}: frequência de pares de \textit{tags} que aparecem juntos, base para a similaridade semântica.
+    \item[d)] \texttt{posts\_metadata.parquet}: versão consolidada dos posts, preparada para o treinamento.
+    \item[e)] \texttt{user\_tag\_profile.parquet}: perfil de interesse de cada usuário, derivado de suas interações históricas com \textit{tags}.
+\end{itemize}
+
+Além disso, o processo experimental foi organizado por um orquestrador e por configurações parametrizáveis, que permitiram controlar hiperparâmetros de treinamento, famílias de modelos, etapas de avaliação e diretórios de saída, assegurando a padronização e a reprodutibilidade dos experimentos
+
+\subsection{Versões da base utilizadas}
+\label{subsec:versoes_base}
+
+O \textit{LDBC SNB} disponibiliza diferentes versões da mesma rede social simulada, controladas por um parâmetro chamado \textit{Scale Factor} (SF), responsável por ampliar proporcionalmente a quantidade de usuários, mensagens e interações geradas. Neste trabalho, três versões da base foram utilizadas, com o objetivo de analisar o comportamento dos modelos em diferentes escalas, desde uma amostra voltada à validação do protocolo até uma versão final de maior porte.
+
+A Tabela \ref{tab:rodadas_execucao_tcc} apresenta as três versões empregadas, junto com o volume bruto do arquivo compactado e o volume já filtrado para o domínio \textit{fitness}.
+
+\begin{table}[H]
+\centering
+\caption{Versões da base \textit{LDBC SNB} utilizadas no estudo}
+\label{tab:rodadas_execucao_tcc}
+\small
+\begin{tabular}{|p{2.0cm}|c|c|c|c|p{3.7cm}|}
+\hline
+\textbf{Rodada} & \textbf{Versão} & \textbf{Arquivo} & \textbf{Mensagens \textit{fitness}} & \textbf{Interações \textit{fitness}} & \textbf{Objetivo} \\
+\hline
+Inicial & \texttt{SF0.1} & 18 MB & 158 & 381 & Fluxo completo validado e primeira leitura comparativa concluída. \\
+\hline
+Intermediária & \texttt{SF3} & 690 MB & 7.585 & 32.074 & Verificar o comportamento das métricas com maior volume de dados. \\
+\hline
+Final & \texttt{SF30} & 7,32 GB & 77.105 & 375.979 & Consolidar os resultados a serem apresentados na versão final do trabalho. \\
+\hline
+\end{tabular}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+A coluna Arquivo refere-se ao volume do arquivo bruto disponibilizado pelo \textit{LDBC SNB}. Já as colunas {Mensagens \textit{fitness} e Interações \textit{fitness} apresentam os volumes obtidos após a aplicação dos filtros, que restringem os dados ao domínio deste estudo, os quais serão descritos na seção seguinte. Quando uma versão específica for mencionada ao longo do texto, como \texttt{SF0.1}, \texttt{SF3} ou \texttt{SF30}, os valores desta tabela poderão ser consultados como referência.
+
+\subsection{Método}
+
+O método desenvolvido foi organizado em quatro etapas: Etapa 1: extração e preparação dos dados; Etapa 2: separação experimental; Etapa 3: treinamento dos modelos; e Etapa 4: avaliação e rastreabilidade. A Figura \ref{fig:fluxograma_metodologia} ilustra o fluxo de dados desde a base até a avaliação dos modelos.
+
+\begin{figure}[H]
+\centering
+\caption{Fluxograma do pipeline metodológico do sistema de recomendação.}
+\label{fig:fluxograma_metodologia}
+\begin{tikzpicture}[
+    box/.style={
+        draw,
+        rectangle,
+        rounded corners,
+        align=center,
+        minimum width=3.7cm,
+        minimum height=1.35cm,
+        text width=3.3cm,
+        fill=blue!10,
+        drop shadow
+    },
+    base/.style={box, fill=gray!20},
+    arrow/.style={-{Stealth[length=3mm]}, thick}
+]
+
+% Nós
+\node[base] (ldbc)         at (0,0)       {Base Bruta\\(LDBC SNB)};
+\node[box]  (extracao)     at (5.0,0)     {Etapa 1 \\Extração e Preparação\\dos Dados};
+\node[box]  (split)        at (10.0,-1.9) {Etapa 2 \\Separação\\(Treino/Val/Teste)};
+\node[box]  (treinamento)  at (5.0,-4.2)  {Etapa 3 \\Treinamento\\dos Modelos};
+\node[box]  (avaliacao)    at (0,-4.2)    {Etapa 4 \\Avaliação e\\Rastreabilidade};
+
+% Setas
+\draw[arrow] (ldbc.east) -- (extracao.west);
+
+\draw[arrow] (extracao.east) -- ++(0.9,0)
+             |- (split.west);
+
+\draw[arrow] (split.south) -- ++(0,-0.8)
+             |- (treinamento.east);
+
+\draw[arrow] (treinamento.west) -- (avaliacao.east);
+
+\end{tikzpicture}
+\small \\ Fonte: Elaborado pelos autores.
+\end{figure}
+
+Em síntese, o pipeline foi estruturado em quatro etapas. A Etapa 1 processa a base bruta do \textit{LDBC SNB} e gera os arquivos \textit{parquet}, já restritos ao domínio \textit{fitness}, bem como os metadados das mensagens, contagens por \textit{tag} e perfis usuário-\textit{tag}. Na Etapa 2, as interações são divididas em treino, validação e teste, a partir de um corte temporal. A Etapa 3 envolve o treinamento dos modelos do \textit{benchmark} e a calibração de hiperparâmetros no conjunto de validação. Por fim, a Etapa 4 conduz a avaliação \textit{offline} no conjunto de teste e registra o manifesto de execução, garantindo rastreabilidade e reprodutibilidade.
+
+\subsubsection{Etapa 1: Extração e preparação dos dados}
+
+Na primeira etapa, a base social genérica foi transformada em um conjunto de dados voltado ao domínio da atividade física. Para isso, o arquivo compactado do \textit{LDBC SNB} foi extraído e seus arquivos \textit{CSV} foram processados. Como a base original contém temas diversos, selecionou-se apenas o conteúdo relacionado ao escopo do trabalho, por meio de duas estratégias: correspondência por classes de \textit{tags}, como "sports", "health", e filtragem direta pelos nomes das \textit{tags}, como "running", "workout". Esse procedimento resultou em tabelas de mensagens, interações, interesses e relações sociais.
+
+A leitura e a filtragem dos arquivos \textit{CSV} foram realizadas com o sistema analítico DuckDB, que permite executar consultas \textit{SQL}. A partir desses resultados, foram aplicadas etapas adicionais de manipulação em \textit{Python} para preparar os artefatos finais: agregação das interações por \textit{post} e por usuário, montagem do perfil de afinidade entre usuário e \textit{tag}, cálculo dos escores de influência social e construção das matrizes binárias de \textit{tags} por publicação. 
+
+Também nessa etapa, os carimbos de tempo originais do \textit{LDBC SNB}, foram normalizados em uma coluna padronizada e preservados em todos os artefatos derivados. Com isso, a ordem cronológica dos eventos foi mantida ao longo de todo o \textit{pipeline}, o que é fundamental para a etapa seguinte de separação dos dados.
+
+A Figura \ref{fig:fluxo_extracao} ilustra a lógica dessa filtragem. O procedimento lê o \textit{dataset} bruto, identifica as \textit{tags} relevantes pelas regras de domínio, propaga essa seleção para \textit{posts} e comentários, e a partir daí restringe as interações e o grafo social associados.
+
+\begin{figure}[H]
+\centering
+\caption{Fluxograma da etapa de extração e filtragem do conteúdo \textit{fitness}.}
+\label{fig:fluxo_extracao}
+\begin{tikzpicture}[
+    node distance=1.2cm and 0.8cm,
+    box/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=blue!10, drop shadow},
+    iobox/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=gray!20, drop shadow},
+    arrow/.style={-{Stealth[scale=1.1]}, thick}
+]
+
+% Linha de cima (esquerda -> direita)
+\node[iobox] (entrada) {Base bruta\\(\textit{LDBC SNB})};
+\node[box, right=of entrada] (filtra_tags) {Selecionar \textit{tags} \textit{fitness}};
+\node[box, right=of filtra_tags] (filtra_posts) {Filtrar \textit{posts} e comentários};
+
+% Linha de baixo (direita -> esquerda)
+\node[box, below=of filtra_posts] (filtra_int) {Filtrar interações};
+\node[box, left=of filtra_int] (filtra_grafo) {Filtrar grafo social};
+\node[iobox, left=of filtra_grafo] (saida) {Artefatos \textit{parquet}};
+
+\draw[arrow] (entrada) -- (filtra_tags);
+\draw[arrow] (filtra_tags) -- (filtra_posts);
+\draw[arrow] (filtra_posts) -- (filtra_int);
+\draw[arrow] (filtra_int) -- (filtra_grafo);
+\draw[arrow] (filtra_grafo) -- (saida);
+
+\end{tikzpicture}
+\small \\ Fonte: Elaborado pelos autores.
+\end{figure}
+
+Para ilustrar o impacto dessa filtragem, a Tabela \ref{tab:estatisticas_extracao} apresenta o volume de dados extraídos da versão SF0.1 do \textit{LDBC SNB} após a aplicação das regras de domínio.
+
+\textcolor{red}{Felipe: não seria legal mostrar o volume das 3 versões da base, com os diferentes SF? Recomendo adicionar duas colunas na tabela e mostrar as 3 bases. }
+
+\begin{table}[H]
+\centering
+\caption{Estatísticas da base de dados após filtragem para o domínio \textit{fitness} (Versão \texttt{SF0.1})}
+\label{tab:estatisticas_extracao}
+\small
+\begin{tabular}{|l|r|}
+\hline
+\textbf{Entidade} & \textbf{Volume após filtragem} \\
+\hline
+\textit{Tags} \textit{fitness} identificadas & 33 \\
+Mensagens (\textit{Posts} e Comentários) & 158 \\
+Interações (Curtidas, Respostas, Criações) & 381 \\
+Interesses declarados por usuários & 7 \\
+Arestas no grafo social & 7.973 \\
+Pares de coocorrência de \textit{tags} & 0 \\
+\hline
+\end{tabular}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+\textcolor{red}{Felipe: com o ajuste na tabela, esse parágrafo precisa ser ajustado.}
+
+O valor nulo de pares de coocorrência de \textit{tags} na \texttt{SF0.1} decorre da escala reduzida desta versão: nenhuma mensagem \textit{fitness} reúne duas ou mais \textit{tags} \textit{fitness} simultaneamente, condição necessária para a formação de um par. Esse sinal deixa de ser nulo à medida que a base cresce, passando a 11 pares na \texttt{SF3} e a 94 na \texttt{SF30}.
+
+
+\subsubsection{Etapa 2: Separação experimental}
+
+Na segunda etapa, as interações \textit{fitness} foram divididas em treino, validação e teste, nas proporções de 70\%, 15\% e 15\%, respectivamente. O conjunto de treino é utilizado para ajustar os modelos, o conjunto de validação é empregado para calibrar pesos e hiperparâmetros e o conjunto de teste permanece reservado para a avaliação final do desempenho \cite{Goodfellow2016DeepLearning,Hastie2001Elements}.
+
+Em sistemas de recomendação, o critério de divisão dos dados é tão relevante quanto a proporção entre os conjuntos. Como cada interação está associada a um instante no tempo, a avaliação deve preservar a ordem cronológica dos eventos, garantindo que o modelo utilize apenas informações anteriores ao momento da recomendação. Uma divisão aleatória violaria essa estrutura e poderia introduzir vazamento de dados, especialmente em atributos derivados, como coocorrência de \textit{tags}, popularidade dos itens e escores de influência social. Por essa razão, neste estudo foi adotada uma separação temporal global.
+
+Diferenças de distribuição entre treino e teste são esperadas nesse desenho e, na verdade, desejáveis: reproduzem o cenário real de uso, em que o modelo recomenda itens futuros a partir do histórico já observado. Para que essa diferença não se traduza em viés, o catálogo é mantido nos três conjuntos e os sinais derivados são recalculados apenas com o treino, como detalhado adiante.
+
+A validação cruzada tradicional (\textit{k-fold}) não se aplica a dados ordenados no tempo, pois as dobras aleatórias quebram a cronologia e reintroduzem vazamento \cite{BERGMEIR2012192}; seu equivalente adequado seria uma validação cruzada temporal por janelas deslizantes, de custo bem mais elevado. Neste trabalho, a própria divisão temporal já reserva um conjunto de validação, separado do conjunto de teste, mantido apenas para a avaliação final.
+
+A separação foi realizada diretamente sobre o eixo cronológico padronizado na Etapa 1. As interações de todos os usuários foram ordenadas pelo carimbo de tempo e, a partir dessa sequência global, foram definidos dois cortes temporais que dividiram os dados em treino, validação e teste. O corte $t_{\text{train\_val}}$ marca a transição entre treino e validação, enquanto
+$t_{\text{val\_test}}$ delimita o início do teste. Assim, preservou-se a proporção de 70\%/15\%/15\% registrando no manifesto da rodada para garantir reprodutibilidade.
+
+O catálogo de \textit{posts} foi mantido nos três conjuntos, variando apenas o conjunto de \emph{interações} disponível em cada etapa. Essa definição busca refletir um cenário realista, em que os itens existem no acervo, enquanto o histórico dos usuários evolui ao longo do tempo. Por essa razão, estatísticas derivadas, como coocorrência de \textit{tags}, popularidade e influência social, foram recalculadas exclusivamente a partir das interações de treino. Na avaliação \textit{offline}, o modelo recebe um item de referência anterior ao corte de teste para predizer interações posteriores, preservando a coerência temporal e produzindo métricas mais próximas do comportamento esperado.
+
+\subsubsection{Etapa 3: Treinamento dos modelos}
+
+% \textcolor{red}{Esses são os nomes dos modelos?} \textcolor{blue}{Sim, são os nomes das quatro configurações do \textit{benchmark} usadas nas tabelas de resultados.}
+
+Nesta etapa, envolve o treinamento dos modelos do benchmark que foram treinadas em quatro configurações de modelos: um \textit{baseline} de popularidade, duas variantes de um modelo híbrido de referência e uma abordagem de aprendizado para ranqueamento. Cada uma dessas configurações foi incluída para atender a um objetivo específico do estudo e servir como base comparativa na análise dos resultados.
+
+A Popularidade (\textit{baseline} trivial) é um recomendador de popularidade pura, que ignora qualquer informação sobre o usuário ou o contexto da consulta e devolve sempre os itens mais populares do catálogo. Esse tipo é classicamente recomendado na literatura de sistemas de recomendação como referência mínima para avaliar técnicas mais sofisticadas \cite{Lops2011CB}. Seu papel no estudo é funcionar como teste de sanidade do protocolo: se algum modelo elaborado perder para ele, há indício de problema na modelagem ou na avaliação.
+
+O \textit{Baseline} híbrido padrão (pesos manuais) combina, por meio de pesos previamente definidos, cinco sinais centrais do estudo: similaridade de conteúdo, coocorrência de \textit{tags}, recência, popularidade e influência social. Abordagens híbridas desse tipo se destacam pelo aproveitamento de metadados dos itens, pela interpretabilidade e pelo baixo custo computacional \cite{Lops2011CB}. Nesse trabalho, o modelo foi utilizado como referência para avaliar o potencial de uma heurística simples e transparente, sem ajuste a partir dos dados.
+
+O \textit{Baseline} híbrido otimizado (pesos calibrados) preserva os mesmos cinco sinais da variante anterior, mas com pesos ajustados por busca em grade \textit{grid search} no conjunto de validação. Seu objetivo é isolar o efeito da calibração dos pesos, permitindo medir, em comparação com o híbrido padrão, o ganho obtido apenas com essa otimização, antes da adoção de um modelo aprendido.
+
+A Figura 3 apresenta o fluxo de treinamento desse modelo, comum às variantes padrão e otimizada. Os \textit{posts} são representados por vetorização binária das \textit{tags}, permitindo medir a proximidade temática entre o conteúdo de entrada e os itens do catálogo. Com base nessa representação, o escore final de cada item é calculado por uma combinação ponderada dos cinco sinais já descritos, conforme a Equação 1 da fundamentação teórica.
+
+\begin{figure}[H]
+\centering
+\caption{Fluxograma do treinamento do modelo híbrido (\textit{baseline}).}
+\label{fig:fluxo_treinamento}
+\begin{tikzpicture}[
+    node distance=1.2cm and 0.4cm,
+    box/.style={draw, rectangle, rounded corners, align=center, minimum width=3.3cm, minimum height=1.3cm, text width=3.1cm, fill=blue!10, drop shadow},
+    iobox/.style={draw, rectangle, rounded corners, align=center, minimum width=3.3cm, minimum height=1.3cm, text width=3.1cm, fill=gray!20, drop shadow},
+    arrow/.style={-{Stealth[scale=1.1]}, thick}
+]
+
+% Linha 1: entrada (centralizada acima das 4 pistas)
+\node[box] (cooc) {Mapa de coocorrência de \textit{tags}};
+\node[box, left=of cooc] (vet) {Vetorização binária de \textit{tags}};
+\node[box, right=of cooc] (pop) {Contagem de popularidade por post};
+\node[box, right=of pop] (soc) {Influência social};
+
+% Entrada acima das 4 caixas, posicionada no meio
+\node[iobox, above=1.3cm of $(cooc)!0.5!(pop)$] (entrada) {Posts, interações e grafo social \textit{fitness}};
+
+% Normalização abaixo das 4 caixas, no mesmo eixo da entrada
+\node[box, below=1.3cm of $(cooc)!0.5!(pop)$] (norm) {Normalizar sinais para o intervalo $[0,1]$};
+
+% Saída abaixo da normalização
+\node[iobox, below=of norm] (artefatos) {Artefatos serializados (matriz, mapa, vetores)};
+
+% Setas entrada -> 4 pistas
+\draw[arrow] (entrada.south) -- ++(0,-0.25) -| (vet.north);
+\draw[arrow] (entrada.south) -- ++(0,-0.25) -| (cooc.north);
+\draw[arrow] (entrada.south) -- ++(0,-0.25) -| (pop.north);
+\draw[arrow] (entrada.south) -- ++(0,-0.25) -| (soc.north);
+
+% Setas 4 pistas -> normalização
+\draw[arrow] (vet.south) |- ($(norm.north)+(0,0.25)$) -- (norm.north);
+\draw[arrow] (cooc.south) |- ($(norm.north)+(0,0.25)$) -- (norm.north);
+\draw[arrow] (pop.south) |- ($(norm.north)+(0,0.25)$) -- (norm.north);
+\draw[arrow] (soc.south) |- ($(norm.north)+(0,0.25)$) -- (norm.north);
+
+% Seta normalização -> artefatos
+\draw[arrow] (norm) -- (artefatos);
+
+\end{tikzpicture}
+\small \\ Fonte: Elaborado pelos autores.
+\end{figure}
+
+Já o Aprendizado para ranqueamento (LightGBMRanker) o modelo aprende diretamente a função de ordenação a partir de pares \textit{query}-item gerados no conjunto de treino. O modelo combina os cinco sinais centrais do híbrido com atributos contextuais do item, do usuário e do contexto temporal. Entre esses atributos, destacam-se informações relacionadas às  \textit{tags}, características do conteúdo, tipo de mensagem, idioma, perfil de afinidade do usuário, diferença temporal entre item e consulta e tamanho do histórico de interações.
+
+A Tabela \ref{tab:configuracoes_benchmark_tcc} apresenta as quatro configurações do \textit{benchmark}, indicando a família a que cada uma pertence e a caracterização técnica do modelo. Ela é referência ao longo de toda a seção: cada \textit{rodada} (\texttt{SF0.1}, \texttt{SF3} e \texttt{SF30}) executa as quatro configurações nas mesmas condições, permitindo comparar diretamente os modelos entre si dentro de cada versão da base.
+
+\begin{table}[H]
+\centering
+\caption{Configurações do \textit{benchmark}}
+\label{tab:configuracoes_benchmark_tcc}
+\small
+\begin{tabular}{|p{3.2cm}|p{2.2cm}|p{9.0cm}|}
+\hline
+\textbf{Experimento} & \textbf{Família} & \textbf{Caracterização} \\
+\hline
+Popularidade (\textit{baseline}) & Popularidade & Recomendador trivial que ignora o usuário e devolve sempre os itens mais populares do catálogo. Serve como referência mínima do \textit{benchmark}. \\
+\hline
+\textit{Baseline} padrão & Híbrida & Combinação manual de similaridade de conteúdo, coocorrência de \textit{tags}, recência, popularidade e influência do grafo social. \\
+\hline
+\textit{Baseline} otimizado & Híbrida & Mesmo conjunto de sinais, com ajuste fino de pesos no conjunto de validação. \\
+\hline
+LTR (\textit{LightGBMRanker}) & LTR & \textit{LightGBMRanker} treinado com os cinco sinais principais, atributos contextuais do item e perfil do usuário, negativos difíceis e regularização ampliada. \\
+\hline
+\end{tabular}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+\subsubsection{Etapa 4: Avaliação e rastreabilidade dos experimentos}
+
+Para garantir a reprodutibilidade, cada execução foi associada a um identificador técnico da base, que organiza separadamente os diretórios de extração, dados preparados, conjuntos experimentais, modelos e resultados. Complementarmente, cada experimento registra seus parâmetros e sua proveniência em arquivos de manifesto, o que permite rastrear com precisão a base, a configuração e os artefatos utilizados em cada treinamento.
+
+Por fim, um orquestrador foi utilizado para organizar os experimentos em termos de famílias de modelos, parâmetros, avaliações habilitadas e métricas-alvo. Essa escolha metodológica permitiu realizar comparações reproduzíveis entre o modelo híbrido de referência e a abordagem com \textit{LightGBMRanker}. A aplicação prática desse protocolo será detalhada na próxima seção, dedicada aos experimentos e resultados.
+
+\section{Experimentos e Resultados}
+
+\subsection{Protocolo e métricas de avaliação}
+
+
+A avaliação em modo \textit{offline} é feita com dados que foram separados previamente, em vez de testar com usuários reais. A vantagem dessa abordagem é poder comparar os modelos de forma justa, todos nas mesmas condições, e repetir o experimento quantas vezes for preciso.
+
+Foi escolhido um instante na linha do tempo de cada usuário e dividido o histórico dele em duas partes, o que ele já tinha acessado antes e o que viria a acessar depois. O modelo recebe apenas a parte de antes, que são as \textit{tags} e o horário da atividade mais recente, e com isso, monta uma lista de recomendações a partir de todo o catálogo. Em seguida, essa lista foi comparada com a parte futura, que funciona como gabarito, quanto mais itens da lista o usuário realmente acessou depois, melhor o modelo. Para que o teste seja justo, o modelo nunca enxerga o futuro, e itens que o usuário já tinha visto são retirados da lista.
+
+Nem todo usuário entra nessa conta, só é possível avaliar quem tem atividade antes e depois do instante escolhido. Por isso, o número de consultas avaliadas muda conforme a versão da base. Como medida de relevância, é contabilizado como acerto o item que o usuário de fato acessou depois. É uma aproximação prática e amplamente adotada na avaliação \textit{offline} de modelos de recomendações \cite{10.1145/963770.963772}, mas não capta tudo, por exemplo, se a pessoa gostou da recomendação ou descobriu algo novo depois. Medir isso exigiria testes com usuários reais, avaliação \textit{online}, o que fica como trabalho futuro.
+
+A Figura \ref{fig:fluxo_avaliacao} ilustra esse protocolo, mostrando a separação temporal da base em treino, validação e teste, a divisão do histórico de cada usuário entre o que veio antes, observado, e o que veio depois, gabarito, e o fluxo do modelo desde a geração da lista Top-K até o cálculo das métricas.
+
+
+\begin{figure}[H]
+\centering
+\caption{Protocolo de avaliação \textit{offline} com separação temporal.}
+\label{fig:fluxo_avaliacao}
+\includegraphics[width=\textwidth]{figuras/protocolo_avaliacao_offline.jpg}
+\small \\ Fonte: Elaborado pelos autores.
+\end{figure}
+
+
+% \begin{figure}[H]
+% \centering
+% \caption{Fluxograma do protocolo de avaliação \textit{offline}.}
+% \label{fig:fluxo_avaliacao}
+% \begin{tikzpicture}[
+%     node distance=1.2cm and 0.5cm,
+%     box/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=blue!10, drop shadow},
+%     iobox/.style={draw, rectangle, rounded corners, align=center, minimum width=3.2cm, minimum height=1.3cm, text width=3.0cm, fill=gray!20, drop shadow},
+%     arrow/.style={-{Stealth[scale=1.1]}, thick}
+% ]
+
+% % Linha de cima (esquerda -> direita)
+% \node[iobox] (entrada) {Conjunto de teste};
+% \node[box, right=of entrada] (grupo) {Agrupar interações por usuário};
+% \node[box, right=of grupo] (ordena) {Ordenar interações cronologicamente};
+% \node[box, right=of ordena] (ref) {Define a referência temporal};
+
+% % Linha de baixo (direita -> esquerda)
+% \node[box, below=of ref] (gab) {Define o gabarito};
+% \node[box, left=of gab] (topk) {Modelo gera Top-K recomendações};
+% \node[box, left=of topk] (metricas) {Calcular métricas};
+% \node[iobox, left=of metricas] (saida) {Média das métricas sobre as consultas};
+
+% \draw[arrow] (entrada) -- (grupo);
+% \draw[arrow] (grupo) -- (ordena);
+% \draw[arrow] (ordena) -- (ref);
+% \draw[arrow] (ref) -- (gab);
+% \draw[arrow] (gab) -- (topk);
+% \draw[arrow] (topk) -- (metricas);
+% \draw[arrow] (metricas) -- (saida);
+
+% \end{tikzpicture}
+% \small \\ Fonte: Elaborado pelos autores.
+% \end{figure}
+
+Para mensurar a qualidade do ranqueamento, foram adotadas métricas que consideram tanto a presença de itens relevantes quanto sua posição na lista recomendada, com profundidades K = 10 e K = 100. São elas:
+
+\begin{itemize}
+    \item[a)] \textit{NDCG@K}, ou ganho acumulado descontado normalizado (\textit{Normalized Discounted Cumulative Gain}), valoriza mais os itens relevantes que aparecem nas primeiras posições da lista.
+    \item[b)] Acerto temático@K: proporção de consultas em que ao menos um item recomendado entre os K primeiros compartilha tema com os itens consumidos logo depois.
+\end{itemize}
+
+
+No acerto temático, foi comparado as \textit{tags} de dois \textit{posts} para decidir se eles falam da mesma coisa. Para isso, foi utilizado uma conta simples chamada índice de Jaccard \cite{Niwattanakul2013Jaccard}, que mede o quanto duas listas de \textit{tags} se parecem, em uma escala de 0 a 1. Dessa forma, conta-se quantas \textit{tags} os dois \textit{posts} têm em comum e divide-se pelo total de \textit{tags} diferentes que aparecem nos dois juntos. O resultado é 0 quando eles não têm nenhuma \textit{tag} em comum e 1 quando têm exatamente as mesmas \textit{tags}.
+
+É considerado que dois \textit{posts} são do mesmo tema quando esse valor é igual ou maior que 0,5, ou seja, quando eles compartilham pelo menos metade das \textit{tags}. Não existe um valor de corte universal para o índice de Jaccard \cite{Niwattanakul2013Jaccard}, pois ele depende do domínio, e por isso a faixa entre 0,4 e 0,7 costuma ser tratada como similaridade moderada. Foi adotado 0,5 por ser um meio-termo, exigindo um pouco de tema em comum, mas sem precisar que as \textit{tags} sejam idênticas. Como essa regra é mais flexível que exigir a próxima interação exata, e como o domínio tem 33 \textit{tags}, os valores do acerto temático ficam mais altos que os do NDCG.
+
+
+Além das métricas de ranqueamento, a avaliação incluiu indicadores de interesse prático, que vão ser exibidos nas tabelas de resultados posteriormente. São eles:
+
+
+
+\begin{itemize}
+    \item[a)] \textit{Latência p95} (Lat.\ p95): tempo de inferência no percentil 95 das consultas, em milissegundos (ms), que reflete o custo de geração das recomendações em uso interativo.
+    \item[b)] \textit{Cobertura} de catálogo (Cob.): fração do catálogo recomendada ao menos uma vez ao longo da avaliação, indicando o quanto o modelo explora o acervo.
+    \item[c)] \textit{Diversidade} intra-lista (Div.): variedade temática média entre os itens de uma mesma lista, calculada a partir das \textit{tags}.
+    \item[d)] \textit{Novidade} (Nov.): tendência do modelo a recomendar itens menos populares, atribuindo pontuação maior quanto menos frequente for o item no catálogo.
+    \item[e)] \textit{Recência} média (Rec.): distância temporal média, em dias (d), entre os itens recomendados e o instante da consulta.
+    \item[f)] \textit{Avaliação manual} (Manual): quantidade de critérios atendidos, considerando os 12 critérios de avaliação, agrupados em três casos qualitativos de quatro critérios cada
+\end{itemize}
+
+Em conjunto, esses indicadores permitem analisar não apenas a relevância das recomendações, mas também sua variedade e custo de geração. No \textit{benchmark} deste trabalho, a métrica-alvo para a seleção do melhor modelo foi o NDCG@100, por combinar relevância e posição dos itens na lista e oferecer leitura mais estável entre as diferentes escalas da base. As métricas de ranqueamento, a cobertura, a diversidade e a novidade variam de 0 a 1, sendo melhores resultados mais próximos de 1. Já a recência média, medida em dias, e a latência de inferência, em milissegundos, ambas preferíveis valores baixos.
+
+Para a avaliação Manual foram definidos três casos representativos do domínio \textit{fitness}, cada um com uma entrada fixa. Esses três casos são as \textit{tags}, instante de referência e tamanho da lista e quatro critérios objetivos de aceitação, são eles, aderência temática, recência, variedade e ausência de itens irrelevantes. Para cada modelo, o sistema verifica o atendimento de cada critério, resultando em uma pontuação total de 0 a 12, três casos com quatro critérios cada. Por serem fixos, os casos e os critérios tornam essa avaliação comparável entre os modelos e as versões da base.
+
+
+
+\subsection{Resultados experimentais por escala da base}
+
+
+\begin{table}[H]
+\centering
+\caption{Resultados da rodada inicial na versão \texttt{SF0.1}}
+\label{tab:resultados_sf01}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|p{1.0cm}|}
+\hline
+\textbf{Modelo} & \textbf{NDCG@100} & \textbf{Ac.\ tema@100} & \textbf{Lat.\ p95 (ms)} & \textbf{Cob.} & \textbf{Div.} & \textbf{Nov.} & \textbf{Rec. (d)} & \textbf{Manual} \\
+\hline
+Popularidade & \textbf{0,1812} & 1,000 & 5,5 & 0,646 & 0,888 & 0,889 & 282 & N/D \\
+\hline
+\textit{Baseline} padrão & 0,1057 & 1,000 & 5,9 & \textbf{0,911} & 0,912 & 0,936 & \textbf{208} & 7/12 \\
+\hline
+\textit{Baseline} otimizado & 0,0507 & 1,000 & \textbf{5,2} & 0,639 & 0,916 & \textbf{0,953} & 245 & 8/12 \\
+\hline
+LTR (\textit{LightGBMRanker}) & 0,1732 & 1,000 & 9,9 & 0,690 & \textbf{0,947} & 0,878 & 345 & \textbf{9/12} \\
+\hline
+\end{tabular}%
+}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+Na \texttt{SF0.1}, o volume de dados é insuficiente para avaliar adequadamente as métricas de topo do ranking. Por ser uma versão muito reduzida da base, é gerado apenas 6 casos de teste. Um número tão pequeno não permite tirar conclusões, mas, ainda assim, o NDCG@100 é a leitura mais informativa, pois os modelos de Popularidade (0,1812) e LTR (0,1732) conseguem recuperar os itens-alvo entre as 100 primeiras posições. 
+
+O acerto temático@100 chega a 1,000 em todos os modelos, mas isso é esperado com tão poucas consultas e apenas 33 \textit{tags} no domínio, o que torna fácil compartilhar tema entre os 100 primeiros itens. Esse resultado demonstra que a rodada cumpre seu objetivo de validação técnica do protocolo experimental. Contudo, as análises mais robustas e conclusivas concentram-se nas rodadas \texttt{SF3} e \texttt{SF30}.
+
+\begin{table}[H]
+\centering
+\caption{Resultados da rodada intermediária na versão \texttt{SF3}}
+\label{tab:resultados_sf3}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|p{1.0cm}|}
+\hline
+\textbf{Modelo} & \textbf{NDCG@100} & \textbf{Ac.\ tema@100} & \textbf{Lat.\ p95 (ms)} & \textbf{Cob.} & \textbf{Div.} & \textbf{Nov.} & \textbf{Rec. (d)} & \textbf{Manual} \\
+\hline
+Popularidade & 0,0003 & 0,157 & \textbf{8,82} & 0,080 & 0,020 & 0,981 & 237 & N/D \\
+\hline
+\textit{Baseline} padrão & 0,0035 & 0,103 & 16,53 & \textbf{0,973} & 0,022 & 0,938 & 74 & 7/12 \\
+\hline
+\textit{Baseline} otimizado & 0,0032 & \textbf{0,662} & 16,40 & 0,629 & 0,705 & 0,955 & \textbf{6} & 7/12 \\
+\hline
+LTR (\textit{LightGBMRanker}) & \textbf{0,0082} & 0,500 & 41,74 & 0,445 & \textbf{0,870} & 0,791 & 151 & \textbf{9/12} \\
+\hline
+\end{tabular}%
+}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+Na \texttt{SF3}, com 1.663 casos de teste, os modelos passam a se diferenciar. O LTR lidera o NDCG@100 (0,0082), sinalizando maior capacidade de recuperar itens relevantes em posições mais distantes do topo, à frente dos \textit{baselines} (0,0035 e 0,0032) e da Popularidade (0,0003). No acerto temático@100, o \textit{Baseline} otimizado assume a liderança (0,662), bem acima das outras métricas, indicando que costuma trazer mais itens do mesmo tema dos consumidos depois. Nos indicadores complementares, o \textit{Baseline} padrão expõe 97,3\% do catálogo, o otimizado prioriza fortemente a recência, o que é desejável para conteúdo \textit{fitness}, e o LTR atinge a maior diversidade.
+
+\begin{table}[H]
+\centering
+\caption{Resultados da rodada final na versão \texttt{SF30}}
+\label{tab:resultados_sf30}
+\scriptsize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|r|r|r|r|r|r|r|p{1.0cm}|}
+\hline
+\textbf{Modelo} & \textbf{NDCG@100} & \textbf{Ac.\ tema@100} & \textbf{Lat.\ p95 (ms)} & \textbf{Cob.} & \textbf{Div.} & \textbf{Nov.} & \textbf{Rec. (d)} & \textbf{Manual} \\
+\hline
+Popularidade & 0,0000 & 0,666 & \textbf{25,0} & 0,047 & 0,480 & 0,978 & 271 & N/D \\
+\hline
+\textit{Baseline} padrão & \textbf{0,0004} & 0,116 & 120,9 & 0,881 & 0,019 & 0,950 & 13 & 8/12 \\
+\hline
+\textit{Baseline} otimizado & 0,0002 & 0,083 & 114,2 & \textbf{0,891} & 0,020 & 0,979 & \textbf{5} & 7/12 \\
+\hline
+LTR (\textit{LightGBMRanker}) & 0,0000 & \textbf{0,773} & 242,6 & 0,026 & \textbf{0,946} & \textbf{0,988} & 152 & \textbf{9/12} \\
+\hline
+\end{tabular}%
+}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+Na \texttt{SF30}, com 21.247 casos de teste e catálogo dez vezes maior, a tarefa torna-se mais difícil. O melhor NDCG@100 passa a ser do \textit{Baseline} padrão (0,0004), bem inferior ao melhor da \texttt{SF3} (0,0082 do LTR). Essa queda decorre do aumento da dificuldade, com 77.105 candidatos, é mais raro acertar a próxima interação, mas não quer dizer uma piora dos modelos. Por isso, o NDCG@100 oferece leitura mais estável entre escalas. Os \textit{baselines} confirmam o perfil mais adequado à produção, com cobertura próxima de 90\% e baixa recência média, enquanto o LTR mantém a maior diversidade (0,946) e a melhor avaliação manual (9/12). 
+
+No acerto temático@100, o LTR alcança o maior valor (0,773), seguido da Popularidade (0,666), enquanto os \textit{baselines} ficam bem abaixo (0,116 e 0,083), sinal de que acertam o item exato com mais frequência do que trazem itens do mesmo tema. A latência de inferência cresce com a complexidade dos modelos, cerca de 25 ms na Popularidade, entre 114 e 121 ms nos \textit{baselines} e 243 ms no LTR.
+
+
+\subsection{Análise comparativa entre versões}
+
+A evolução das rodadas indica um padrão consistente, em menor escala, os experimentos servem principalmente para validar o protocolo, enquanto em escalas maiores torna-se possível distinguir com mais clareza o comportamento de cada modelo. Nesse cenário, os \textit{baselines} mostraram maior estabilidade com o crescimento do catálogo, ao passo que a abordagem de ranqueamento aprendido se mostrou mais dependente de ajuste fino e volume de dados. 
+
+Tal resultado está em linha com a literatura, que aponta que sinais explícitos do item, como \textit{tags}, popularidade e recência, tendem a escalar bem em catálogos amplos \cite{Lops2011CB}, enquanto modelos de ranqueamento aprendido, demandam maior calibração para atingir melhor desempenho \cite{Ke2017LightGBM,Burges2010LTROverview}.
+
+Em suma, os modelos apresentam perfis complementares. Os \textit{baselines} mostraram desempenho mais equilibrado em aspectos ligados ao uso em produção, como cobertura e recência, enquanto o LTR se destacou sobretudo em profundidade de recuperação e diversidade. Em todos os casos, a escolha do modelo mais adequado depende da dimensão priorizada no sistema.
+
+A Tabela \ref{tab:comparacao_snapshots_tcc} permite observar como o comportamento dos modelos muda com o volume de dados.
+
+\begin{table}[H]
+\centering
+\caption{Comparação evolutiva entre rodadas com diferentes versões}
+\label{tab:comparacao_snapshots_tcc}
+\small
+\begin{tabular}{|l|l|p{2.8cm}|r|r|p{3.6cm}|}
+\hline
+\textbf{Rodada} & \textbf{Versão} & \textbf{Modelo} & \textbf{NDCG@100} & \textbf{Ac.\ tema@100} & \textbf{Observação} \\
+\hline
+Inicial & \texttt{SF0.1} & Popularidade (\textit{baseline}) & 0,1812 & 1,000 & Poucas consultas; o NDCG@100 mostra que os itens-alvo ficam dentro do top~100 e o acerto temático satura em 1,000. \\
+\hline
+Intermediária & \texttt{SF3} & \textit{Baseline} otimizado & 0,0032 & 0,662 & no acerto temático@100, o \textit{Baseline} otimizado se sai melhor que o NDCG@100  \\
+\hline
+Final & \texttt{SF30} & LTR (\textit{LightGBMRanker}) & 0,0000 & 0,773 & Catálogo dez vezes maior reduz o NDCG@100; o LTR alcança o maior acerto temático@100 (0,773). \\
+\hline
+\end{tabular}
+\small \\ Fonte: Elaborado pelos autores.
+\end{table}
+
+\subsection{Contextualização dos valores absolutos}
+
+Os valores absolutos de NDCG observados neste estudo podem parecer baixos quando analisados isoladamente, mas são esperados em razão do rigor do gabarito, do tamanho do catálogo e, sobretudo, do protocolo de avaliação adotado. No NDCG, a recomendação só é considerada correta quando o modelo recupera exatamente o próximo \textit{post} acessado entre milhares de outros. Esse critério é bem mais rígido que definições que admitem como acerto qualquer item de um mesmo tema, que é justamente o que o acerto temático mede, e por isso reduz os valores absolutos das métricas de ranqueamento. Por isso foi reportado os dois critérios em conjunto, o exato pelo NDCG, e o flexível pelo acerto temático.
+
+Para entender por que esses números são baixos, é necessário saber o que o NDCG mede. Ele verifica se os itens certos aparecem na lista e, principalmente, se aparecem perto do topo, dando mais peso aos acertos nas primeiras posições, que é onde o usuário olha primeiro. O valor é normalizado entre 0 e 1, em que 1 representa a lista perfeita, com o item certo logo na frente \cite{Jarvelin2002NDCG}. Nosso protocolo, só conta como acerto o próximo \textit{post} exato, entre milhares de opções, e ainda há perda quando ele aparece em posições mais baixas, o que é natural o NDCG fique próximo de zero, mesmo para um modelo bom.
+
+O tamanho do catálogo reforça essa leitura. Na \texttt{SF30}, com 77.105 \textit{posts} candidatos, a chance de acertar o item exato entre os 100 primeiros é de apenas \(100/77.105 \approx 0{,}13\%\), o que mantém os valores absolutos baixos mesmo para bons modelos. Já para catálogos menores, como na \texttt{SF3}, eles sobem. Por isso, o valor do trabalho está na comparação relativa entre os modelos sob o mesmo protocolo, e não no valor isolado de cada métrica.
+
+É justamente para complementar essa leitura que foi adotado o acerto temático. Em vez de exigir o item exato, ele considera correto qualquer \textit{post} do mesmo tema, o que reflete melhor o objetivo prático no domínio \textit{fitness}, que é oferecer conteúdo relevante e não necessariamente o único item certo. Sob esse critério, os valores sobem bastante, chegando a 0,773 no LTR e 0,666 na Popularidade na \texttt{SF30}. Ou seja, os modelos recomendam conteúdo pertinente com muito mais frequência do que sugerem as métricas de acerto exato, o que é a informação mais importante para quem usa o sistema na prática.
+
+
+\subsection{Síntese dos achados}
+
+Após as três rodadas, é nítido que cada modelo tem um ponto forte distinto e complementar. A métrica acerto temático reforça esse quadro, pois mostra que ao olhar para o tema em vez do item exato, cada modelo traz um conteúdo pertinente com frequências distintas. Não há, portanto, um modelo dominante, a escolha para produção depende do critério priorizado pelo negócio, latência, engajamento em conteúdo recente ou descoberta diversificada.
+
+O volume de dados, por sua vez, é determinante para a comparação sendo que a \texttt{SF0.1} valida apenas o protocolo, a \texttt{SF3} já distingue os modelos e a \texttt{SF30} reduz o NDCG absoluto pela maior dificuldade da tarefa, tornando o NDCG@100 a métrica mais informativa em escala.
+
+Por fim, destacam-se três limitações, o critério estrito baseado na próxima interação exata, que reduz os valores absolutos de NDCG, o caráter sintético da base \textit{LDBC SNB}, com texto gerado aleatoriamente e a ausência de avaliação \textit{online} com usuários reais.
+
+
+\section{CONCLUSÃO}
+
+Este trabalho foi motivado pelo desafio de estimular a prática de atividade física em um contexto no qual plataformas digitais concentram grande volume de conteúdos, mas nem sempre oferecem informações compatíveis com o perfil, os interesses e o momento de cada usuário. Diante dessa necessidade de tornar a descoberta de conteúdos fitness mais relevante e personalizada, foi desenvolvido e avaliado o FitConnect, uma rede social que utiliza um sistema de recomendação híbrido para organizar e ranquear publicações com base em sinais de conteúdo, recência, popularidade e relações sociais.
+
+A metodologia adotada permitiu estruturar um fluxo experimental reproduzível, desde a preparação da base de dados até a avaliação dos modelos. A comparação entre as abordagens mostrou que os modelos possuem comportamentos complementares, sem que uma única solução se destaque em todos os critérios analisados. Enquanto os modelos híbridos apresentaram maior estabilidade e equilíbrio prático, o modelo baseado em aprendizado para ranqueamento demonstrou potencial para ampliar a diversidade das recomendações.
+
+De modo geral, os resultados indicam que a personalização de conteúdos fitness em redes sociais pode se beneficiar da combinação de diferentes sinais de recomendação. No entanto, o desempenho dos modelos também mostrou depender do volume de dados, da qualidade das interações disponíveis e do critério utilizado para avaliar a relevância das recomendações.
+
+Como limitações, destacam-se o uso de uma base sintética e a ausência de testes com usuários reais, o que restringe a análise da experiência de uso em um ambiente prático. Para trabalhos futuros, sugere-se a utilização de dados reais, a realização de avaliações online no FitConnect e o aprimoramento dos modelos de recomendação com maior personalização por usuário. Dessa forma, o sistema poderá evoluir para recomendações mais ajustadas ao comportamento dos usuários e às necessidades de redes sociais voltadas à atividade física.
+
+\newpage
+
+\bibliographystyle{abntex2-alf}
+\bibliography{bibliografia}
+
+\end{document}
